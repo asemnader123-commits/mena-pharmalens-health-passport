@@ -1,0 +1,1 @@
+- [Artifact builds](slide-build-commands.md) — manual Vite production builds need the workflow-provided PORT and BASE_PATH values.

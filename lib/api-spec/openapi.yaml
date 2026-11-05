@@ -1,0 +1,636 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: MENA Passport + PharmaLens API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: auth
+    description: Demo authentication and current session
+  - name: passport
+    description: Patient health passport
+  - name: pharmacy
+    description: Pharmacist workspace
+  - name: medication
+    description: Medication brand and INN catalog
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /auth/demo-login:
+    post:
+      operationId: demoLogin
+      tags: [auth]
+      summary: Sign in to a seeded demo account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DemoLoginInput"
+      responses:
+        "200":
+          description: Signed in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+  /auth/me:
+    get:
+      operationId: getCurrentSession
+      tags: [auth]
+      summary: Get the current session
+      responses:
+        "200":
+          description: Current session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "401":
+          description: Not signed in
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: End the current session
+      responses:
+        "204":
+          description: Signed out
+  /medication/brand-mappings:
+    get:
+      operationId: listMedicationBrandMappings
+      tags: [medication]
+      summary: List saved medication brand and INN mappings
+      responses:
+        "200":
+          description: Saved mappings; records without provenance are unverified demo data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MedicationBrandMapping"
+  /passport:
+    get:
+      operationId: getPassport
+      tags: [passport]
+      summary: Get the signed-in patient's passport
+      responses:
+        "200":
+          description: Passport overview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Passport"
+  /passport/summary:
+    get:
+      operationId: getPassportSummary
+      tags: [passport]
+      summary: Get patient dashboard counts and active grant
+      responses:
+        "200":
+          description: Passport summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PassportSummary"
+  /passport/medications:
+    post:
+      operationId: createMedication
+      tags: [passport]
+      summary: Add a medication to the passport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MedicationInput"
+      responses:
+        "201":
+          description: Medication created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Medication"
+    get:
+      operationId: listMedications
+      tags: [passport]
+      summary: List medications
+      responses:
+        "200":
+          description: Medication list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Medication"
+  /passport/medications/{id}:
+    patch:
+      operationId: updateMedication
+      tags: [passport]
+      summary: Update a medication
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MedicationUpdate"
+      responses:
+        "200":
+          description: Medication updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Medication"
+    delete:
+      operationId: deleteMedication
+      tags: [passport]
+      summary: Remove a medication
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "204":
+          description: Medication removed
+  /passport/records:
+    get:
+      operationId: listPassportRecords
+      tags: [passport]
+      summary: List prescriptions and vaccination records
+      responses:
+        "200":
+          description: Passport records
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PassportRecords"
+    post:
+      operationId: createPassportRecord
+      tags: [passport]
+      summary: Add a prescription or vaccination record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PassportRecordInput"
+      responses:
+        "201":
+          description: Record created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PassportRecord"
+  /passport/access-grants:
+    get:
+      operationId: listAccessGrants
+      tags: [passport]
+      summary: List current patient's access grants
+      responses:
+        "200":
+          description: Access grant list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AccessGrant"
+    post:
+      operationId: createAccessGrant
+      tags: [passport]
+      summary: Generate a temporary pharmacist access grant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccessGrantInput"
+      responses:
+        "201":
+          description: Access grant created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessGrant"
+  /passport/access-grants/{id}/revoke:
+    post:
+      operationId: revokeAccessGrant
+      tags: [passport]
+      summary: Revoke an access grant
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "200":
+          description: Revoked grant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessGrant"
+  /passport/access-history:
+    get:
+      operationId: listAccessHistory
+      tags: [passport]
+      summary: List pharmacy access events
+      responses:
+        "200":
+          description: Access history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AccessLog"
+  /pharmacy/summary:
+    get:
+      operationId: getPharmacySummary
+      tags: [pharmacy]
+      summary: Get pharmacy dashboard metrics
+      responses:
+        "200":
+          description: Pharmacy summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PharmacySummary"
+  /pharmacy/lookup:
+    post:
+      operationId: lookupPatient
+      tags: [pharmacy]
+      summary: Look up a patient with a temporary access code or token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatientLookupInput"
+      responses:
+        "200":
+          description: Minimum-necessary patient view
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatientLookup"
+  /pharmacy/inventory:
+    get:
+      operationId: listInventory
+      tags: [pharmacy]
+      summary: List inventory sorted by FEFO
+      responses:
+        "200":
+          description: Inventory list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InventoryItem"
+    post:
+      operationId: createInventoryItem
+      tags: [pharmacy]
+      summary: Add an inventory item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InventoryItemInput"
+      responses:
+        "201":
+          description: Inventory item created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryItem"
+  /pharmacy/inventory/{id}:
+    patch:
+      operationId: updateInventoryItem
+      tags: [pharmacy]
+      summary: Update an inventory item
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InventoryItemUpdate"
+      responses:
+        "200":
+          description: Inventory item updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryItem"
+    delete:
+      operationId: deleteInventoryItem
+      tags: [pharmacy]
+      summary: Remove an inventory item
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      responses:
+        "204":
+          description: Inventory item removed
+  /pharmacy/substitutions/{id}/confirm:
+    post:
+      operationId: confirmSubstitution
+      tags: [pharmacy]
+      summary: Record pharmacist review of a suggested match
+      parameters:
+        - $ref: "#/components/parameters/Id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubstitutionConfirmationInput"
+      responses:
+        "200":
+          description: Confirmation recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubstitutionConfirmation"
+components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    DemoLoginInput:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [patient, pharmacist]
+      required: [role]
+    Session:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+      required: [user]
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        role: { type: string, enum: [patient, pharmacist] }
+        fullName: { type: string }
+        email: { type: string }
+        preferredLanguage: { type: string, enum: [ar, en] }
+        country: { type: string }
+      required: [id, role, fullName, email, preferredLanguage, country]
+    PatientProfile:
+      type: object
+      properties:
+        dateOfBirth: { type: string }
+        bloodType: { type: ["string", "null"] }
+        allergies: { type: string }
+        emergencyContactName: { type: string }
+        emergencyContactPhone: { type: string }
+      required: [dateOfBirth, allergies, emergencyContactName, emergencyContactPhone]
+    Medication:
+      type: object
+      properties:
+        id: { type: integer }
+        brandName: { type: string }
+        innName: { type: string }
+        dosage: { type: string }
+        frequency: { type: string }
+        prescribingCountry: { type: string }
+        startDate: { type: string }
+        endDate: { type: ["string", "null"] }
+        isActive: { type: boolean }
+      required: [id, brandName, innName, dosage, frequency, prescribingCountry, startDate, isActive]
+    MedicationInput:
+      type: object
+      properties:
+        brandName: { type: string, minLength: 1 }
+        dosage: { type: string, minLength: 1 }
+        frequency: { type: string, minLength: 1 }
+        prescribingCountry: { type: string, minLength: 1 }
+        startDate: { type: string, minLength: 1 }
+        endDate: { type: ["string", "null"] }
+        isActive: { type: boolean }
+      required: [brandName, dosage, frequency, prescribingCountry, startDate, isActive]
+    MedicationUpdate:
+      allOf:
+        - $ref: "#/components/schemas/MedicationInput"
+    MedicationBrandMapping:
+      type: object
+      properties:
+        brandName: { type: string }
+        country: { type: string }
+        innName: { type: string }
+        verificationStatus: { type: string, enum: [unverified_demo] }
+      required: [brandName, country, innName, verificationStatus]
+    Prescription:
+      type: object
+      properties:
+        id: { type: integer }
+        medicationId: { type: ["integer", "null"] }
+        issuedBy: { type: string }
+        issuedCountry: { type: string }
+        issuedDate: { type: string }
+        notes: { type: string }
+      required: [id, issuedBy, issuedCountry, issuedDate, notes]
+    Vaccination:
+      type: object
+      properties:
+        id: { type: integer }
+        vaccineName: { type: string }
+        dateAdministered: { type: string }
+        country: { type: string }
+        notes: { type: string }
+      required: [id, vaccineName, dateAdministered, country, notes]
+    PassportRecord:
+      oneOf:
+        - $ref: "#/components/schemas/Prescription"
+        - $ref: "#/components/schemas/Vaccination"
+    PassportRecords:
+      type: object
+      properties:
+        prescriptions:
+          type: array
+          items: { $ref: "#/components/schemas/Prescription" }
+        vaccinations:
+          type: array
+          items: { $ref: "#/components/schemas/Vaccination" }
+      required: [prescriptions, vaccinations]
+    PassportRecordInput:
+      type: object
+      properties:
+        type: { type: string, enum: [prescription, vaccination] }
+        medicationId: { type: ["integer", "null"] }
+        issuedBy: { type: string }
+        issuedCountry: { type: string }
+        issuedDate: { type: string }
+        vaccineName: { type: string }
+        dateAdministered: { type: string }
+        country: { type: string }
+        notes: { type: string }
+      required: [type, notes]
+    AccessGrant:
+      type: object
+      properties:
+        id: { type: integer }
+        accessCode: { type: string }
+        qrToken: { type: string }
+        createdAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+        scope: { type: string, enum: [active_medications_only, full_passport] }
+        revoked: { type: boolean }
+        remainingSeconds: { type: integer }
+      required: [id, accessCode, qrToken, createdAt, expiresAt, scope, revoked, remainingSeconds]
+    AccessGrantInput:
+      type: object
+      properties:
+        scope: { type: string, enum: [active_medications_only, full_passport] }
+      required: [scope]
+    AccessLog:
+      type: object
+      properties:
+        id: { type: integer }
+        pharmacyName: { type: string }
+        accessedAt: { type: string, format: date-time }
+        dataScopeViewed: { type: string }
+      required: [id, pharmacyName, accessedAt, dataScopeViewed]
+    Passport:
+      type: object
+      properties:
+        patient:
+          $ref: "#/components/schemas/User"
+        profile:
+          $ref: "#/components/schemas/PatientProfile"
+        medications:
+          type: array
+          items: { $ref: "#/components/schemas/Medication" }
+        records:
+          $ref: "#/components/schemas/PassportRecords"
+        activeGrant:
+          oneOf:
+            - $ref: "#/components/schemas/AccessGrant"
+            - type: "null"
+      required: [patient, profile, medications, records, activeGrant]
+    PassportSummary:
+      type: object
+      properties:
+        activeMedicationCount: { type: integer }
+        prescriptionCount: { type: integer }
+        vaccinationCount: { type: integer }
+        accessEventCount: { type: integer }
+        activeGrant:
+          oneOf:
+            - $ref: "#/components/schemas/AccessGrant"
+            - type: "null"
+      required: [activeMedicationCount, prescriptionCount, vaccinationCount, accessEventCount, activeGrant]
+    Pharmacy:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        country: { type: string }
+        city: { type: string }
+        licenseNumber: { type: string }
+      required: [id, name, country, city, licenseNumber]
+    InventoryItem:
+      type: object
+      properties:
+        id: { type: integer }
+        drugBrandName: { type: string }
+        innName: { type: string }
+        batchNumber: { type: string }
+        quantity: { type: integer }
+        expiryDate: { type: string }
+        unitCost: { type: ["number", "null"] }
+        status: { type: string, enum: [fine, return_window, rotate_now] }
+        daysToExpiry: { type: integer }
+      required: [id, drugBrandName, innName, batchNumber, quantity, expiryDate, status, daysToExpiry]
+    InventoryItemInput:
+      type: object
+      properties:
+        drugBrandName: { type: string, minLength: 1 }
+        innName: { type: string, minLength: 1 }
+        batchNumber: { type: string, minLength: 1 }
+        quantity: { type: integer, minimum: 0 }
+        expiryDate: { type: string, minLength: 1 }
+        unitCost: { type: ["number", "null"] }
+      required: [drugBrandName, innName, batchNumber, quantity, expiryDate]
+    InventoryItemUpdate:
+      allOf:
+        - $ref: "#/components/schemas/InventoryItemInput"
+    PharmacySummary:
+      type: object
+      properties:
+        pharmacy:
+          $ref: "#/components/schemas/Pharmacy"
+        totalSkus: { type: integer }
+        totalUnits: { type: integer }
+        expiringSoonCount: { type: integer }
+        rotateNowCount: { type: integer }
+        recentLookups:
+          type: array
+          items: { $ref: "#/components/schemas/AccessLog" }
+      required: [pharmacy, totalSkus, totalUnits, expiringSoonCount, rotateNowCount, recentLookups]
+    PatientLookupInput:
+      type: object
+      properties:
+        accessCode: { type: string, minLength: 6 }
+      required: [accessCode]
+    PatientLookup:
+      type: object
+      properties:
+        patientName: { type: string }
+        allergies: { type: string }
+        medications:
+          type: array
+          items: { $ref: "#/components/schemas/Medication" }
+        prescriptions:
+          type: array
+          items: { $ref: "#/components/schemas/Prescription" }
+        expiresAt: { type: string, format: date-time }
+        remainingSeconds: { type: integer }
+        suggestions:
+          type: array
+          items: { $ref: "#/components/schemas/InventoryItem" }
+      required: [patientName, allergies, medications, prescriptions, expiresAt, remainingSeconds, suggestions]
+    SubstitutionConfirmationInput:
+      type: object
+      properties:
+        confirmed: { type: boolean }
+      required: [confirmed]
+    SubstitutionConfirmation:
+      type: object
+      properties:
+        id: { type: integer }
+        confirmed: { type: boolean }
+        confirmedAt: { type: string, format: date-time }
+      required: [id, confirmed, confirmedAt]
+

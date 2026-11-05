@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "MENA Passport + PharmaLens"
+description = "A bilingual patient health passport and pharmacist inventory workspace for safe, temporary medication access, INN mapping, audit trails, and FEFO expiry monitoring."
+version = "1.0.0"
+id = "artifacts/mena-pharmalens"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23817
+
+[services.development]
+run = "pnpm --filter @workspace/mena-pharmalens run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/mena-pharmalens", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/mena-pharmalens/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23817"
+BASE_PATH = "/"

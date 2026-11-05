@@ -1,0 +1,8 @@
+[
+  {"id":"1c36c2e0-5e90-4a55-9a60-8f70a2c93d10","position":1,"filepath":"src/pages/slides/Title.tsx","title":"MENA Passport + PharmaLens | جوازك الصحي الرقمي","description":"Bilingual product introduction","speakerNotes":""},
+  {"id":"2d47d3f1-6fa1-4b66-aa71-9f81b3da4e21","position":2,"filepath":"src/pages/slides/TravelProblem.tsx","title":"The travel problem | مشكلة السفر","description":"Cross-border medication context","speakerNotes":""},
+  {"id":"3e58e402-70b2-4c77-bb82-a092c4eb5f32","position":3,"filepath":"src/pages/slides/TravelPassport.tsx","title":"A passport that travels with you | جواز يسافر معك","description":"Illustrative MENA travel journey","speakerNotes":""},
+  {"id":"4f69f513-81c3-4d88-cc93-b1a3d5fc6043","position":4,"filepath":"src/pages/slides/TwoPortals.tsx","title":"Two portals. One safer loop. | بوابتان، حلقة أكثر أمانًا","description":"Patient and pharmacist portals","speakerNotes":""},
+  {"id":"5a70a624-92d4-4e99-dd04-c2b4e6ad7154","position":5,"filepath":"src/pages/slides/Trust.tsx","title":"Trust is a product feature | الثقة جزء من المنتج","description":"Access controls and pharmacist review","speakerNotes":""},
+  {"id":"6b81b735-a3e5-4faa-ee15-d3c5f7be8265","position":6,"filepath":"src/pages/slides/Closing.tsx","title":"Built for the first real journey | جاهز لأول رحلة حقيقية","description":"MVP flow and next step","speakerNotes":""}
+]

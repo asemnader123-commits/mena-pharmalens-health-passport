@@ -1,0 +1,28 @@
+kind = "slides"
+previewPath = "/mena-pharmalens-deck/"
+title = "MENA Passport + PharmaLens — Product Deck"
+description = "A bilingual Arabic-English product deck introducing MENA Passport + PharmaLens, its cross-border patient journey, pharmacist workspace, safety model, and MVP scope."
+version = "1.0.0"
+id = "artifacts/mena-pharmalens-deck"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/mena-pharmalens-deck/" ]
+localPort = 19393
+
+[services.development]
+run = "pnpm --filter @workspace/mena-pharmalens-deck run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/mena-pharmalens-deck", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/mena-pharmalens-deck/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19393"
+BASE_PATH = "/mena-pharmalens-deck/"
